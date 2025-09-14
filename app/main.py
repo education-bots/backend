@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.config import settings
 from app.db.connection import lifespan
 from app.api.v1.agent import router as agent_router
+from app.api.v1.books import router as books_router
 
  
 
@@ -20,6 +21,8 @@ def create_app() -> FastAPI:
     
     # Include routers
     app.include_router(agent_router, prefix="/api/v1/agents")
+    app.include_router(books_router, prefix="/api/v1/books")
+
 
     # Health check endpoint
     @app.get("/health")

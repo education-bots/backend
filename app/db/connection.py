@@ -27,6 +27,26 @@ async def initialize_supabase() -> Client:
         raise e
 
 
+async def initialize_supabase_bucket(client: Client):
+    """Initialize Supabase storage bucket"""
+    
+    try:
+        buckets_name = [bucket.name for bucket in client.storage.list_buckets()]
+    
+        # Create bucket if not exists
+        if settings.supabase_bucket not in buckets_name:
+            client.storage.create_bucket(
+                id=settings.supabase_bucket,
+                options={
+                    "public": True,
+                    "allowed_mime_types": ["application/pdf"],
+                }
+            )
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize Supabase storage bucket: {e}")
+        raise e
+
 
 async def initialize_pinecone() -> tuple[Pinecone, Index]:
     """Initialize Pinecone client and index"""
@@ -78,6 +98,7 @@ async def lifespan(app):
         # Initialize all services
         supabase_client = await initialize_supabase()
         pinecone_client, pinecone_index = await initialize_pinecone()
+        await initialize_supabase_bucket(supabase_client)
         await initialize_mcp_server()
         
         logger.info("All services initialized successfully")
