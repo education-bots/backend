@@ -1,0 +1,47 @@
+from typing import Optional
+from agents import Agent, GuardrailFunctionOutput, Runner, input_guardrail
+from pydantic import BaseModel
+
+
+
+class InputGuardrailOutputType(BaseModel):
+    is_related_to_study: bool
+    reasoning: str
+    subject: str
+    response: Optional[str]
+
+
+input_guardrail_agent = Agent(
+    name="Input Guardrail Agent",
+    model="gemini-2.0-flash",
+    instructions="""
+    You are a input guardrail agent, check if the user input is related to study.
+    """,
+    output_type=InputGuardrailOutputType
+)
+
+
+
+@input_guardrail
+async def input_guardrails(context, agent, input):
+
+    result = await Runner.run(input_guardrail_agent, input)
+    final_output = result.final_output_as(InputGuardrailOutputType)
+
+    return GuardrailFunctionOutput(
+        output_info=final_output,
+        tripwire_triggered=not final_output.is_related_to_study
+    )
+    
+
+
+
+
+
+
+
+
+
+
+
+        

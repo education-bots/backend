@@ -3,11 +3,13 @@ from typing import Any, AsyncGenerator, Dict, List
 from uuid import UUID
 
 from openai.types.responses import ResponseTextDeltaEvent
-from agents import Agent, Runner
+from agents import Agent, InputGuardrailTripwireTriggered, Runner
 
+from app.agents.guardrails import input_guardrails
 from app.agents.helpper import generate_instructions
 from app.agents.memory import Memory
 from app.schemas.user_schema import User
+from app.agents.tutor_agents import english_agent, urdu_agent, maths_agent, science_agent
 
 
 logger = logging.getLogger(__name__)
@@ -20,6 +22,8 @@ class LessonAgent():
             name="Learning Assistant",
             model="gemini-2.5-flash",
             instructions=generate_instructions,
+            input_guardrails=[input_guardrails],
+            handoffs=[english_agent, urdu_agent, maths_agent, science_agent],
         )
         self.memory = Memory()
 
@@ -116,6 +120,10 @@ class LessonAgent():
                     text = event.data.delta
                     print(text)
                     yield text
+        
+        except InputGuardrailTripwireTriggered as e:
+            logger.error(f"Input guardrail tripwire triggered: {e.guardrail_result.output.output_info.reasoning}")
+            yield f"I apologize, but I could not proccess you request.\n{e.guardrail_result.output.output_info.response}."
 
         except Exception as e:
             logger.error(f"Error generating response: {e}")
