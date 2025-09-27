@@ -1,9 +1,11 @@
 from openai import AsyncOpenAI
 from pydantic_settings import BaseSettings
-
+import os
+from dotenv import load_dotenv
 from agents import set_default_openai_client, set_default_openai_api, set_tracing_disabled
-
-
+ 
+load_dotenv()
+MCP_SERVER_PORT = os.getenv("MCP_SERVER_PORT")
 class Settings(BaseSettings):
     
     # API Configuration
@@ -22,12 +24,6 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_key: str
     supabase_bucket: str = "books"
-    
-    # Pinecone Configuration
-    pinecone_api_key: str
-    pinecone_index: str
-    pinecone_environment: str = "us-east-1"
-    embedding_dimension: int = 768
 
 
     # MCP Server Configuration
@@ -45,6 +41,12 @@ class Settings(BaseSettings):
 
 
 # Global settings instance
+def require_env(var_name: str) -> str:
+    value = os.getenv(var_name)
+    if value is None:
+        raise EnvironmentError(f"Required environment variable '{var_name}' is not set.")
+    return value
+
 settings = Settings()
 settings.initialize_gemini_model()
 
