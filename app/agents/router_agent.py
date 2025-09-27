@@ -1,10 +1,8 @@
 import logging
-from typing import Any, AsyncGenerator, Dict, List
+from typing import AsyncGenerator, Dict, List
 from uuid import UUID
-
 from openai.types.responses import ResponseTextDeltaEvent
 from agents import Agent, InputGuardrailTripwireTriggered, Runner, TResponseInputItem
-
 from app.agents.adaptation_agent import adaptation_agent
 from app.agents.assessment_agent import assesment_agent
 from app.agents.content_agent import content_agent
@@ -13,12 +11,10 @@ from app.agents.helpper import generate_instructions
 from app.agents.memory import Memory
 from app.schemas.agent_schema import Message
 from app.schemas.user_schema import User
-# from app.agents.tutor_agents import english_agent, urdu_agent, maths_agent, science_agent
-
 
 logger = logging.getLogger(__name__)
 
-class LessonAgent():
+class OrchestratorAgent():
     """AI tutor agent specialized in lesson delivery and educational content"""
 
     def __init__(self):
@@ -71,7 +67,6 @@ class LessonAgent():
         )
         
         
-    
     def _build_educational_prompt(
         self,
         question: str, *,
@@ -107,8 +102,6 @@ class LessonAgent():
         
         agent_input: List[TResponseInputItem] = history + [{"role": 'user', "content": current_prompt}]
         return agent_input
-
-
 
     async def _stream_response(self, prompt: List[TResponseInputItem], context: User) -> AsyncGenerator[str, None]:
         """Stream response from Gemini model"""
