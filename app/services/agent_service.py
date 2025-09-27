@@ -1,7 +1,7 @@
 import logging
 from typing import AsyncGenerator
 
-from app.agents.test_agent import LessonAgent
+from app.agents.router_agent import LessonAgent
 from app.schemas.agent_schema import AgentRequest
 
 

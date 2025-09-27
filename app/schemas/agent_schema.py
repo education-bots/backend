@@ -6,7 +6,7 @@ from app.schemas.user_schema import User
 
 
 class Message(TypedDict):
-    role: Literal["user", "agent"]
+    role: Literal["user", "assistant"]
     content: str
 
 class AgentRequest(BaseModel):

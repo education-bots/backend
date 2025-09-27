@@ -1,8 +1,7 @@
 import logging
 from typing import Optional
 from fastapi.concurrency import asynccontextmanager
-from pinecone import Pinecone, ServerlessSpec
-from pinecone.db_data.index import Index
+from sentence_transformers import SentenceTransformer
 from supabase import Client, create_client
 
 from app.config import settings
@@ -12,8 +11,10 @@ logger = logging.getLogger(__name__)
 
 # GLobal clients
 supabase_client: Optional[Client] = None
-pinecone_client: Optional[Pinecone] = None
-pinecone_index = None
+supabase_embedding_model: Optional[SentenceTransformer] = None
+
+# Load the gte-small model
+# model = SentenceTransformer('Supabase/gte-small')
 
 
 async def initialize_supabase() -> Client:
@@ -24,54 +25,19 @@ async def initialize_supabase() -> Client:
         return client
     except Exception as e:
         logger.error(f"Failed to initialize Supabase client: {e}")
-        raise e
+        raise Exception from e
 
 
-async def initialize_supabase_bucket(client: Client):
-    """Initialize Supabase storage bucket"""
-    
+async def initialize_embedding_model() -> SentenceTransformer:
+    """Initialize Supabase Embedding Model"""
     try:
-        buckets_name = [bucket.name for bucket in client.storage.list_buckets()]
-    
-        # Create bucket if not exists
-        if settings.supabase_bucket not in buckets_name:
-            client.storage.create_bucket(
-                id=settings.supabase_bucket,
-                options={
-                    "public": True,
-                    "allowed_mime_types": ["application/pdf"],
-                }
-            )
-        
+        supabase_embedding_model = SentenceTransformer('Supabase/gte-small')
+        logger.info("Supabase client initialized successfully")
+        return supabase_embedding_model
     except Exception as e:
-        logger.error(f"Failed to initialize Supabase storage bucket: {e}")
-        raise e
+        logger.error(f"Failed to initialize Supabase client {e}")
+        raise Exception from e
 
-
-async def initialize_pinecone() -> tuple[Pinecone, Index]:
-    """Initialize Pinecone client and index"""
-    try:
-        pc = Pinecone(api_key=settings.pinecone_api_key)
-        
-        # Check if index exists, create if not
-        if settings.pinecone_index not in pc.list_indexes().names():
-            pc.create_index(
-                name=settings.pinecone_index,
-                dimension=settings.embedding_dimension,
-                metric="cosine",
-                spec=ServerlessSpec(
-                    cloud="aws",
-                    region=settings.pinecone_environment
-                )
-            )
-            logger.info(f"Created Pinecone index: {settings.pinecone_index}")
-            
-        
-        index = pc.Index(settings.pinecone_index)
-        return pc, index
-    except Exception as e:
-        logger.error(f"Failed to initialize Pinecone: {e}")
-        raise e
 
 async def initialize_mcp_server():
     """Initialize Supabase MCP server"""
@@ -90,15 +56,14 @@ async def initialize_mcp_server():
 @asynccontextmanager
 async def lifespan(app):
     """Application lifespan manager"""
-    global supabase_client, pinecone_client, pinecone_index
+    global supabase_client, supabase_embedding_model
     
     logger.info("Starting up application...")
     
     try:
         # Initialize all services
         supabase_client = await initialize_supabase()
-        pinecone_client, pinecone_index = await initialize_pinecone()
-        await initialize_supabase_bucket(supabase_client)
+        supabase_embedding_model = await initialize_embedding_model()
         await initialize_mcp_server()
         
         logger.info("All services initialized successfully")
@@ -106,12 +71,11 @@ async def lifespan(app):
 
     except Exception as e:
         logger.error(f"Failed to initialize services: {e}")
-        raise e
+        raise Exception from e
     
     finally:
         supabase_client = None
-        pinecone_client = None    
-        pinecone_index = None    
+        supabase_embedding_model = None
         logger.info("Shutting down application...")
 
 
@@ -121,17 +85,9 @@ def get_supabase() -> Client:
         raise RuntimeError("Supabase client not initialized")
     return supabase_client
 
-
-def get_pinecone_index():
-    """Get Pinecone index"""
-    if pinecone_index is None:
-        raise RuntimeError("Pinecone index not initialized")
-    return pinecone_index
-
-
-def get_pinecone_client() -> Pinecone:
-    """Get Pinecone client"""
-    if pinecone_client is None:
-        raise RuntimeError("Pinecone client not initialized")
-    return pinecone_client
+def get_supabase_embedding_model() -> SentenceTransformer:
+    """Get Supabase embedding model"""
+    if supabase_embedding_model is None:
+        raise RuntimeError("Supabase embedding model not initialized")
+    return supabase_embedding_model
 

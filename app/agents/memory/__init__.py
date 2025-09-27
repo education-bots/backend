@@ -51,15 +51,15 @@ class Memory:
     async def get_last_messages(
         self,
         conversation_id: UUID,
-        limit: int = 5
-    ) -> List[Dict[str, Any]]:
-        """Get last 5 messages from database"""
+        limit: int = 10
+    ) -> List[Message]:
+        """Get last n messages from database"""
 
         try:            
             result = (
                 self.supabase
                     .table("messages")
-                    .select('*')
+                    .select('role, message_text')
                     .eq("conversation_id", conversation_id)
                     .order("created_at", desc=True)
                     .limit(limit)
@@ -70,7 +70,12 @@ class Memory:
             
             if result.data:
                 logger.info(f"Saved conversation {conversation_id} to database")
-                return result.data
+                messages: list[Message] = [
+                    {"role": row["role"], "content": row["message_text"]}
+                    for row in result.data
+                ]
+
+                return messages
             else:
                 logger.error(f"Failed to save conversation {conversation_id}")
                 return []
