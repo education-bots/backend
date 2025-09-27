@@ -2,6 +2,8 @@ from typing import Optional
 from agents import Agent, GuardrailFunctionOutput, Runner, input_guardrail
 from pydantic import BaseModel
 
+from app.prompts.safety_policy_prompt import safety_policy_agent_prompt
+from app.schemas.agents_output.guardrails_schema import SafetyPolicyOutput
 
 
 class InputGuardrailOutputType(BaseModel):
@@ -9,14 +11,13 @@ class InputGuardrailOutputType(BaseModel):
     reasoning: str
     subject: str
     response: Optional[str]
+    safety_policy: SafetyPolicyOutput
 
 
 input_guardrail_agent = Agent(
     name="Input Guardrail Agent",
     model="gemini-2.0-flash",
-    instructions="""
-    You are a input guardrail agent, check if the user input is related to study.
-    """,
+    instructions=safety_policy_agent_prompt,
     output_type=InputGuardrailOutputType
 )
 
