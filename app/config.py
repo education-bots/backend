@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     supabase_key: str
     supabase_bucket: str = "books"
 
+    # Front-end deployed url
+    frontend_url: str
 
     # MCP Server Configuration
     mcp_server_port: int = 8001

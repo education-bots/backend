@@ -4,8 +4,7 @@ from app.config import settings
 from app.db.connection import lifespan
 from app.api.v1.agent import router as agent_router
 from app.api.v1.books import router as books_router
-
- 
+from fastapi.middleware.cors import CORSMiddleware
 
 
 def create_app() -> FastAPI:
@@ -22,7 +21,20 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(agent_router, prefix="/api/v1/agents")
     app.include_router(books_router, prefix="/api/v1/books")
-
+    
+    origins = [
+        "http://localhost:3000",
+        settings.frontend_url,
+        # Add other allowed origins as needed
+    ]
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,  # Allow cookies and authentication headers
+        allow_methods=["*"],     # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+        allow_headers=["*"],     # Allow all headers
+    )
 
     # Health check endpoint
     @app.get("/health")
