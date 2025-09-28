@@ -1,5 +1,5 @@
 from agents import Agent, function_tool
-from app.db.connection import get_supabase, supabase_embedding_model
+from app.db.connection import get_supabase, get_supabase_embedding_model
 from app.agents.adaptation_agent import adaptation_agent
 from app.agents.language_agent import language_agent
 from app.prompts.content_curator_prompt import content_curator_agent_prompt
@@ -18,7 +18,7 @@ def retrieve_curriculum_chunks(query: str, match_threshold: float = 0.8, top_k: 
         A list of dicts containing matched passages with their source citations.
     """
     client = get_supabase()
-    model = supabase_embedding_model()
+    model = get_supabase_embedding_model()
 
     # Convert query to embeddings
     embeddings = model.encode(query)

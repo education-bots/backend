@@ -63,6 +63,7 @@ async def lifespan(app):
     try:
         # Initialize all services
         supabase_client = await initialize_supabase()
+        print("initialize_embedding_model")
         supabase_embedding_model = await initialize_embedding_model()
         await initialize_mcp_server()
         

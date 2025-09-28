@@ -11,7 +11,7 @@ class Message(TypedDict):
 
 class AgentRequest(BaseModel):
     user_id: UUID = Field(..., description="UUID of the user asking the question")
-    conversation_id: UUID = Field(..., description="UUID of the conversation")
+    conversation_id: str = Field(..., description="UUID of the conversation")
     question: str = Field(..., min_length=1, max_length=2000, description="User's question")
     user: User = Field(..., description="User's context")
 

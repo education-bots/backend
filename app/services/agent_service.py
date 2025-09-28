@@ -1,7 +1,7 @@
 import logging
 from typing import AsyncGenerator
 
-from app.agents.router_agent import LessonAgent
+from app.agents.router_agent import OrchestratorAgent
 from app.schemas.agent_schema import AgentRequest
 
 
@@ -20,7 +20,7 @@ class AgentService:
     
     def _initialize_agents(self):
         """Initialize available agents"""
-        self.lesson_agent = LessonAgent()
+        self.lesson_agent = OrchestratorAgent()
         # self.agents["lesson-agent"] = lesson_agent
 
     async def process_request(self, request: AgentRequest) -> AsyncGenerator[str, None]:
