@@ -22,11 +22,7 @@ def create_app() -> FastAPI:
     app.include_router(agent_router, prefix="/api/v1/agents")
     app.include_router(books_router, prefix="/api/v1/books")
     
-    origins = [
-        "http://localhost:3000",
-        settings.frontend_url,
-        # Add other allowed origins as needed
-    ]
+    origins = ["*"]
     
     app.add_middleware(
         CORSMiddleware,
