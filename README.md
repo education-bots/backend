@@ -126,15 +126,6 @@ GEMINI_API_KEY="your-gemini-key"
 # Supabase
 SUPABASE_URL="your-supabase-url"
 SUPABASE_KEY="your-supabase-key"
-SUPABASE_BUCKET="books"
-
-# Pinecone
-PINECONE_API_KEY="your-pinecone-key"
-PINECONE_INDEX="your-index-name"
-PINECONE_ENVIRONMENT="us-east-1"
-
-# MCP Server
-MCP_SERVER_PORT=8001
 ```
 
 ## 📋 Development Guidelines
@@ -160,7 +151,6 @@ MCP_SERVER_PORT=8001
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [OpenAI Agents Documentation](https://github.com/openai/agents)
 - [Supabase Documentation](https://supabase.com/docs)
-- [Pinecone Documentation](https://docs.pinecone.io/)
 
 ---
 

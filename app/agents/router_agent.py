@@ -124,7 +124,7 @@ class OrchestratorAgent():
             yield f"I apologize, but I could not proccess you request.\n{e.guardrail_result.output.output_info.response}."
 
         except Exception as e:
-            logger.error(f"Error generating response: {e}")
+            logger.error(f"Error generating response: {e}\nError class name: {e.__class__.__name__}")
             yield f"I apologize, but I encountered an error while processing your question. Please try again."
         
 

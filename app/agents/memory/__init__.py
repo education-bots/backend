@@ -25,6 +25,12 @@ class Memory:
         """Save conversation to database"""
         
         try:
+            result = (self.supabase
+                .table("conversations")
+                .upsert({ "id": str(conversation_id), "user_id": str(user_id) })
+                .execute()
+            )
+
             # Save conversation metadata
             conversation_data = {
                 "user_id": str(user_id),
@@ -69,7 +75,7 @@ class Memory:
             print(result)
             
             if result.data:
-                logger.info(f"Saved conversation {conversation_id} to database")
+                logger.info(f"Fetched conversation {conversation_id} from database")
                 messages: list[Message] = [
                     {"role": row["role"], "content": row["message_text"]}
                     for row in result.data
@@ -77,11 +83,11 @@ class Memory:
 
                 return messages
             else:
-                logger.error(f"Failed to save conversation {conversation_id}")
+                logger.error(f"Failed to get conversation {conversation_id}")
                 return []
             
         except Exception as e:
-            logger.error(f"Error saving conversation: {e}")
+            logger.error(f"Error getting conversation: {e}")
             return []
 
 

@@ -22,11 +22,14 @@ def create_app() -> FastAPI:
     app.include_router(agent_router, prefix="/api/v1/agents")
     app.include_router(books_router, prefix="/api/v1/books")
     
-    origins = ["*"]
+    origins = [
+        "http://localhost:3000",
+        settings.frontend_url,
+    ]
     
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=["*"],
         allow_credentials=True,  # Allow cookies and authentication headers
         allow_methods=["*"],     # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
         allow_headers=["*"],     # Allow all headers
@@ -45,6 +48,6 @@ app = create_app()
 
 @app.get("/")
 async def home():
-    return {"message": "Welcome to AI-powered learning platform for rural children (K-4).\nVisit '\\docs' for more information"}
+    return {"message": "Welcome to AI-powered learning platform for rural children (K-4).\nVisit '/docs' for more information"}
 
 
